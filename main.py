@@ -1,0 +1,70 @@
+from lib import preprocessing, agora_checking, taxonomic_distribution
+
+import pandas 
+import json
+
+def main(*args, relative=False, **kwargs):
+    with open('MARS3/mars.json', 'r') as fp:
+        agora2 = json.load(fp)
+    agora2_phyla = set(agora2["Phylum"])
+    agora2_classes = set(agora2["Class"])
+    agora2_orders = set(agora2["Order"])
+    agora2_families = set(agora2["Family"])
+    agora2_genera = set(agora2["Genus"])
+    agora2_species = set(agora2["Species"])
+    agora2_strains = set(agora2["Strain"])
+    
+    agora2_level_sets = [agora2_phyla, agora2_classes, agora2_orders, agora2_families, agora2_genera, agora2_species, agora2_strains]
+    
+    df_levels = list(preprocessing(**kwargs, relative=relative))
+    df, kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df = df_levels[0], df_levels[1], df_levels[2], df_levels[3], df_levels[4], df_levels[5], df_levels[6], df_levels[7], df_levels[8]
+    
+    levels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Strain']
+    present_df_levels = []
+    absent_df_levels = []
+    for df_level, agora2_level_set in zip(df_levels[2:], agora2_level_sets):
+        df_absent, df_present = agora_checking(df_level, agora2_level_set)
+        present_df_levels.append(df_present)
+        absent_df_levels.append(df_absent)
+        
+#     present_phylum_df, present_class_df, present_order_df, present_family_df, present_genus_df, present_species_df, present_strain_df = present_df_levels[0], present_df_levels[1], present_df_levels[2], present_df_levels[3], present_df_levels[4], present_df_levels[5], present_df_levels[6]
+#     absent_phylum_df, absent_class_df, absent_order_df, absent_family_df, absent_genus_df, absent_species_df, absent_strain_df = absent_df_levels[0], absent_df_levels[1], absent_df_levels[2], absent_df_levels[3], absent_df_levels[4], absent_df_levels[5], absent_df_levels[6]
+    present_genus_df, present_species_df = present_df_levels[4], present_df_levels[5]
+    
+    #construct coverage files here
+    levels_omitting_kingdom = levels[1:].copy()
+    total_reads = df.drop(columns=levels).sum()
+    
+    present_dataframes = {}
+    absent_dataframes = {}
+    for i, (absent_df, present_df, level, agora2_level_set) in enumerate(zip(absent_df_levels, present_df_levels, levels_omitting_kingdom, agora2_level_sets)):
+        df_present_species, df_absent_species, absent_relative = taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
+        present_dataframes[level.lower()] = [present_df_levels[i], df_present_species]
+        absent_dataframes[level.lower()] = [absent_df_levels[i], df_absent_species, absent_relative]
+   
+    #save requested files
+    for arg in args:
+        try:
+            arg = arg.lower()
+            if arg == "class":
+                #save
+                print(present_dataframes[arg])
+                pass
+            elif arg == "order":
+                #save
+                pass
+            elif arg == "family":
+                #save
+                pass
+            elif arg == "strain":
+                #save
+                pass
+            else:
+                print(f"\"{arg}\" did not match any of the optional taxonomic levels. Please check spelling")
+        except SyntaxError:
+            print("A syntax error was found in your arguments. Please check that you inputted a string.")
+            pass
+    
+    return present_genus_df, present_species_df
+
+genus, species = main("class", taxonomy_table="files/taxonomyWoL.tsv", feature_table="files/feature-tableWoLgenome.txt")
