@@ -67,4 +67,4 @@ def main(*args, relative=False, **kwargs):
     
     return present_genus_df, present_species_df
 
-genus, species = main("class", taxonomy_table="files/taxonomyWoL.tsv", feature_table="files/feature-tableWoLgenome.txt")
+#genus, species = main("class", taxonomy_table="files/taxonomyWoL.tsv", feature_table="files/feature-tableWoLgenome.txt")
