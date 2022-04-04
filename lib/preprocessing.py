@@ -161,7 +161,7 @@ def preprocessing(relative = False, **kwargs):
         except FileNotFoundError as err:
             raise FileNotFoundError("Feature table not found. Please check file path.")
             
-    if combined and relative:
+    if combined: #and relative
         df = tax.iloc[:, 0].replace(".__", "", regex=True).str.split(';', expand=False)
         df = df.apply(lambda x: pad_or_truncate(x, 8)) #ensure every taxonomic level has empty spaces for levels that are not represented
         df = pd.DataFrame(df.to_list(), columns=levels)

@@ -69,5 +69,6 @@ def main(*args, relative=False, **kwargs):
 
 if __name__ == "__main__":
 
-    genus, species = main(combined=r"C:\Users\THuls\Downloads\IBS_reads_metagenomics.xlsx", relative=True)
+    genus, species = main(combined=r"C:\Users\THuls\Downloads\IBS_reads_metagenomics.xlsx")
     print(genus)
+    print(species)
