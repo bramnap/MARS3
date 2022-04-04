@@ -217,4 +217,4 @@ def preprocessing(relative = False, **kwargs):
     species_df = get_grouped_tax_level("Species", df)
     strain_df = get_grouped_tax_level("Strain", df)
 
-    return kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df
+    return df, kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df

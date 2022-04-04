@@ -4,7 +4,7 @@ import pandas
 import json
 
 def main(*args, relative=False, **kwargs):
-    with open('MARS3/mars.json', 'r') as fp:
+    with open('mars.json', 'r') as fp:
         agora2 = json.load(fp)
     agora2_phyla = set(agora2["Phylum"])
     agora2_classes = set(agora2["Class"])
@@ -16,14 +16,14 @@ def main(*args, relative=False, **kwargs):
     
     agora2_level_sets = [agora2_phyla, agora2_classes, agora2_orders, agora2_families, agora2_genera, agora2_species, agora2_strains]
     
-    df_levels = list(preprocessing(**kwargs, relative=relative))
+    df_levels = list(preprocessing.preprocessing(**kwargs, relative=relative))
     df, kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df = df_levels[0], df_levels[1], df_levels[2], df_levels[3], df_levels[4], df_levels[5], df_levels[6], df_levels[7], df_levels[8]
     
     levels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Strain']
     present_df_levels = []
     absent_df_levels = []
     for df_level, agora2_level_set in zip(df_levels[2:], agora2_level_sets):
-        df_absent, df_present = agora_checking(df_level, agora2_level_set)
+        df_absent, df_present = agora_checking.agora_checking(df_level, agora2_level_set)
         present_df_levels.append(df_present)
         absent_df_levels.append(df_absent)
         
@@ -38,7 +38,7 @@ def main(*args, relative=False, **kwargs):
     present_dataframes = {}
     absent_dataframes = {}
     for i, (absent_df, present_df, level, agora2_level_set) in enumerate(zip(absent_df_levels, present_df_levels, levels_omitting_kingdom, agora2_level_sets)):
-        df_present_species, df_absent_species, absent_relative = taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
+        df_present_species, df_absent_species, absent_relative = taxonomic_distribution.taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
         present_dataframes[level.lower()] = [present_df_levels[i], df_present_species]
         absent_dataframes[level.lower()] = [absent_df_levels[i], df_absent_species, absent_relative]
    
@@ -67,4 +67,7 @@ def main(*args, relative=False, **kwargs):
     
     return present_genus_df, present_species_df
 
-#genus, species = main("class", taxonomy_table="files/taxonomyWoL.tsv", feature_table="files/feature-tableWoLgenome.txt")
+if __name__ == "__main__":
+
+    genus, species = main(combined=r"C:\Users\THuls\Downloads\IBS_reads_metagenomics.xlsx", relative=True)
+    print(genus)
