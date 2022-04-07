@@ -70,7 +70,9 @@ def preprocessing(relative = False, **kwargs):
         'Eubacterium ruminantium group': 'Eubacterium',
         'Eubacterium ventriosum group': 'Eubacterium',
         'Eubacterium xylanophilum group': 'Eubacterium',
-        'Clostridium innocuum group': 'Erysipelatoclostridium'  
+        'Clostridium innocuum group': 'Erysipelatoclostridium', 
+        ' group': '',
+        '_group': ''
     }
     
     levels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Strain'] 
