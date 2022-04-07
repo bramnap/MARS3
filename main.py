@@ -1,6 +1,6 @@
 from lib import preprocessing, agora_checking, taxonomic_distribution
 
-import pandas 
+import os
 import json
 
 def main(*args, relative=False, **kwargs):
@@ -17,6 +17,7 @@ def main(*args, relative=False, **kwargs):
     agora2_level_sets = [agora2_phyla, agora2_classes, agora2_orders, agora2_families, agora2_genera, agora2_species, agora2_strains]
     
     df_levels = list(preprocessing.preprocessing(**kwargs, relative=relative))
+    # Total reads
     df, kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df = df_levels[0], df_levels[1], df_levels[2], df_levels[3], df_levels[4], df_levels[5], df_levels[6], df_levels[7], df_levels[8]
     
     levels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Strain']
@@ -38,10 +39,13 @@ def main(*args, relative=False, **kwargs):
     present_dataframes = {}
     absent_dataframes = {}
     for i, (absent_df, present_df, level, agora2_level_set) in enumerate(zip(absent_df_levels, present_df_levels, levels_omitting_kingdom, agora2_level_sets)):
-        df_present_species, df_absent_species, absent_relative = taxonomic_distribution.taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
-        present_dataframes[level.lower()] = [present_df_levels[i], df_present_species]
+        df_present_species, df_present_agora_species, df_absent_species, absent_relative = taxonomic_distribution.taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
+        present_dataframes[level.lower()] = [present_df_levels[i], df_present_species, df_present_agora_species]
         absent_dataframes[level.lower()] = [absent_df_levels[i], df_absent_species, absent_relative]
-   
+    
+    if not os.path.isdir("MARS_output"):
+        os.mkdir("MARS_output")
+
     #save requested files
     for arg in args:
         try:
@@ -64,6 +68,12 @@ def main(*args, relative=False, **kwargs):
         except SyntaxError:
             print("A syntax error was found in your arguments. Please check that you inputted a string.")
             pass
+    
+    for taxa in ['phyla', 'genus', 'species']:
+        for i, name in enumerate(["total", "total_with_species", "agora2"]):
+            present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_present.csv', index=False)
+        for i, name in enumerate(["total", "agora2", "relative"]):
+            absent_dataframes[taxa][i].to_csv(f'MARS_output/{name}_absent.csv', index=False)
     
     return present_genus_df, present_species_df
 
