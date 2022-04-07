@@ -1,4 +1,4 @@
-from lib import preprocessing, agora_checking, taxonomic_distribution
+from lib import preprocessing, agora_checking, taxonomic_distribution, pipeline, species_genus_association
 
 import os
 import json
@@ -19,8 +19,13 @@ def main(*args, relative=False, **kwargs):
     df_levels = list(preprocessing.preprocessing(**kwargs, relative=relative))
     # Total reads
     df, kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df = df_levels[0], df_levels[1], df_levels[2], df_levels[3], df_levels[4], df_levels[5], df_levels[6], df_levels[7], df_levels[8]
+
+    # phylum_df total phylum reads
     
-    levels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Strain']
+    # associated_phylum_species, associated_phylum_genus = species_genus_association.association(df, levels, "Phylum")
+    # absent_phylum, present_phylum = agora2_checking(phylum_df, agora2_phyla) 
+    # associated_phylum_with_species in agora
+
     present_df_levels = []
     absent_df_levels = []
     for df_level, agora2_level_set in zip(df_levels[2:], agora2_level_sets):
@@ -32,17 +37,19 @@ def main(*args, relative=False, **kwargs):
 #     absent_phylum_df, absent_class_df, absent_order_df, absent_family_df, absent_genus_df, absent_species_df, absent_strain_df = absent_df_levels[0], absent_df_levels[1], absent_df_levels[2], absent_df_levels[3], absent_df_levels[4], absent_df_levels[5], absent_df_levels[6]
     present_genus_df, present_species_df = present_df_levels[4], present_df_levels[5]
     
-    #construct coverage files here
-    levels_omitting_kingdom = levels[1:].copy()
-    total_reads = df.drop(columns=levels).sum()
+    # #construct coverage files here
+    # levels_omitting_kingdom = levels[1:].copy()
+    # total_reads = df.drop(columns=levels).sum()
     
-    present_dataframes = {}
-    absent_dataframes = {}
-    for i, (absent_df, present_df, level, agora2_level_set) in enumerate(zip(absent_df_levels, present_df_levels, levels_omitting_kingdom, agora2_level_sets)):
-        df_present_species, df_present_agora_species, df_absent_species, absent_relative = taxonomic_distribution.taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
-        present_dataframes[level.lower()] = [present_df_levels[i], df_present_species, df_present_agora_species]
-        absent_dataframes[level.lower()] = [absent_df_levels[i], df_absent_species, absent_relative]
+    # present_dataframes = {}
+    # absent_dataframes = {}
+    # for i, (absent_df, present_df, level, agora2_level_set) in enumerate(zip(absent_df_levels, present_df_levels, levels_omitting_kingdom, agora2_level_sets)):
+    #     df_present_species, df_present_agora_species, df_absent_species, absent_relative = taxonomic_distribution.taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
+    #     present_dataframes[level.lower()] = [present_df_levels[i], df_present_species, df_present_agora_species]
+    #     absent_dataframes[level.lower()] = [absent_df_levels[i], df_absent_species, absent_relative]
     
+    levels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Strain']
+
     if not os.path.isdir("MARS_output"):
         os.mkdir("MARS_output")
 
@@ -52,7 +59,7 @@ def main(*args, relative=False, **kwargs):
             arg = arg.lower()
             if arg == "class":
                 #save
-                print(present_dataframes[arg])
+                #print(present_dataframes[arg])
                 pass
             elif arg == "order":
                 #save
@@ -68,12 +75,15 @@ def main(*args, relative=False, **kwargs):
         except SyntaxError:
             print("A syntax error was found in your arguments. Please check that you inputted a string.")
             pass
-    
-    for taxa in ['phylum', 'genus', 'species']:
-        for i, name in enumerate(["total", "total_with_species", "agora2"]):
-            present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_present.csv')
-        for i, name in enumerate(["total", "agora2", "relative"]):
-            absent_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_absent.csv')
+
+
+    # total_df, associated_species, associated_genus, absent, present, associated_species_agora2, associated_genus_agora2 = pipeline.pipeline(df, total_df, levels, level, agora2_level_set, agora2_species, agora2_genera)
+    pipeline.pipeline(df, phylum_df, levels, "Phylum", agora2_phyla, agora2_species, agora2_genera)
+    # for taxa in ['phylum', 'genus', 'species']:
+    #     for i, name in enumerate(["agora_checked", "total_with_species", "agora2"]):
+    #         present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_present.csv')
+    #     for i, name in enumerate(["agora_checked", "agora2", "relative"]):
+    #         absent_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_absent.csv')
     
     return present_genus_df, present_species_df
 
