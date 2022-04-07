@@ -69,11 +69,11 @@ def main(*args, relative=False, **kwargs):
             print("A syntax error was found in your arguments. Please check that you inputted a string.")
             pass
     
-    for taxa in ['phyla', 'genus', 'species']:
+    for taxa in ['phylum', 'genus', 'species']:
         for i, name in enumerate(["total", "total_with_species", "agora2"]):
-            present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_present.csv', index=False)
+            present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_present.csv')
         for i, name in enumerate(["total", "agora2", "relative"]):
-            absent_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_absent.csv', index=False)
+            absent_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_absent.csv')
     
     return present_genus_df, present_species_df
 
