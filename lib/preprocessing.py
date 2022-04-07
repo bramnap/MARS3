@@ -161,7 +161,7 @@ def preprocessing(relative = False, **kwargs):
         except FileNotFoundError as err:
             raise FileNotFoundError("Feature table not found. Please check file path.")
             
-    if combined: #and relative
+    if combined and relative:
         df = tax.iloc[:, 0].replace(".__", "", regex=True).str.split(';', expand=False)
         df = df.apply(lambda x: pad_or_truncate(x, 8)) #ensure every taxonomic level has empty spaces for levels that are not represented
         df = pd.DataFrame(df.to_list(), columns=levels)
@@ -169,6 +169,31 @@ def preprocessing(relative = False, **kwargs):
         df = df.replace("", pd.NA)
         df = df.replace("_", " ", regex=True)
         df["occurences"] = df.apply(lambda x: x.isna().sum(), axis=1) #Occurences of <NA>
+    elif combined and not relative:
+        df = tax.iloc[:, 0].replace(".__", "", regex=True).str.split(';', expand=False)
+        df = df.apply(lambda x: pad_or_truncate(x, 8)) #ensure every taxonomic level has empty spaces for levels that are not represented
+        df = pd.DataFrame(df.to_list(), columns=levels)
+        df = df.merge(tax.iloc[: , 1:], left_index=True, right_index=True, how='inner')
+        df = df.replace("", pd.NA)
+        df = df.replace("_", " ", regex=True)
+        df["occurences"] = df.apply(lambda x: x.isna().sum(), axis=1) #Occurences of <NA>
+
+        ##current method for knowing if tax file contains prefix-less species 
+        ##possibly should add some methodology e.g. if almost no genus appears in species name then we move on
+        ##might need to be stand alone function if it appears in combined files as well
+        naming_convention = True
+        for i, entry in df.iterrows(): #are Genus and Species combined already?
+            if entry["Genus"] == "": 
+                pass
+            elif entry["Genus"] in entry["Species"]: #if *a* genus is found in a species entry we say yes
+                naming_convention = False
+                break
+
+        df["Species"] = df["Genus"].str.strip() + "_" + df["Species"].str.strip()
+        #df["Species"] = df["Species"].str.replace("(.*?)_(?!\S)", "", regex=True)
+
+        for i in df["Species"]:
+            print(i) 
     else:
         df = tax.iloc[:, 1].replace(".__", "", regex=True).str.split(';', expand=False) #access second column
 
