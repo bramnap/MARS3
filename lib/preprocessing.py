@@ -192,8 +192,6 @@ def preprocessing(relative = False, **kwargs):
         df["Species"] = df["Genus"].str.strip() + "_" + df["Species"].str.strip()
         #df["Species"] = df["Species"].str.replace("(.*?)_(?!\S)", "", regex=True)
 
-        for i in df["Species"]:
-            print(i) 
     else:
         df = tax.iloc[:, 1].replace(".__", "", regex=True).str.split(';', expand=False) #access second column
 
