@@ -84,10 +84,10 @@ def main(*args, relative=False, **kwargs):
     df_absent_genus, df_present_genus = agora_checking.agora_checking(genus_df, agora2_genera)
     df_absent_species, df_present_species = agora_checking.agora_checking(species_df, agora2_species)
 
-    df_absent_genus.to_csv("absent_genus.csv")
-    df_present_genus.to_csv("present_genus.csv")
-    df_absent_species .to_csv("absent_species.csv")
-    df_present_species.to_csv("present_species.csv")
+    df_absent_genus.to_csv("MARS_output/absent_genus.csv")
+    df_present_genus.to_csv("MARS_output/present_genus.csv")
+    df_absent_species .to_csv("MARS_output/absent_species.csv")
+    df_present_species.to_csv("MARS_output/present_species.csv")
     # for taxa in ['phylum', 'genus', 'species']:
     #     for i, name in enumerate(["agora_checked", "total_with_species", "agora2"]):
     #         present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_present.csv')
