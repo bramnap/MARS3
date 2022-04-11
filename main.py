@@ -95,19 +95,24 @@ def main(*args, relative=False, **kwargs):
     agora_species_normed = present_species_df.loc[:].div(total_species_reads)
     agora_genus_normed = present_genus_df.loc[:].div(total_genus_reads)
 
+    agora_species_normed_cut = agora_species_normed
+    agora_genus_normed_cut = agora_genus_normed
     # Save these dfs
-    agora_species_normed[agora_species_normed < 1e-5] = 0
-    agora_genus_normed[agora_genus_normed < 1e-5] = 0
-
+    agora_species_normed_cut[agora_species_normed_cut < 1e-5] = 0
+    agora_genus_normed_cut[agora_genus_normed_cut < 1e-5] = 0
     # Renormalize
 
-    total_species_rel_abund = agora_species_normed.sum()
-    total_genus_rel_abund = agora_genus_normed.sum()
+    total_species_rel_abund = agora_species_normed_cut.sum()
+    total_genus_rel_abund = agora_genus_normed_cut.sum()
 
+    agora_species_renormed = agora_species_normed_cut.loc[:].div(total_species_rel_abund)
+    agora_genus_renormed = agora_genus_normed_cut.loc[:].div(total_genus_rel_abund)
 
+    species_df_list = [present_species_df, agora_species_normed, agora_species_normed_cut,agora_species_renormed]
+    genus_df_list = [present_genus_df, agora_genus_normed, agora_genus_normed_cut,agora_genus_renormed]
     # Get stats on the species
 
-    x = general_stats.general_stats(df, species_phylum_list, present_species_df)
+    x = general_stats.general_stats(df, species_phylum_list, species_df_list)
 
     # Get stats on the genus
 
