@@ -20,3 +20,8 @@ def pipeline(df, total_df, levels, level, agora2_level_set, agora2_species, agor
     present.to_csv(f'MARS_output/present_{level}.csv')
     associated_species_agora2.to_csv(f'MARS_output/associated_species_agora2_{level}.csv')
     associated_genus_agora2.to_csv(f'MARS_output/associated_genus_agora2_{level}.csv')
+
+    species_phylum_list = [total_df, associated_species, associated_species_agora2]
+    genus_phylum_list = [total_df, associated_genus, associated_genus_agora2]
+
+    return species_phylum_list, genus_phylum_list
