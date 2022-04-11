@@ -78,13 +78,20 @@ def main(*args, relative=False, **kwargs):
 
 
     # total_df, associated_species, associated_genus, absent, present, associated_species_agora2, associated_genus_agora2 = pipeline.pipeline(df, total_df, levels, level, agora2_level_set, agora2_species, agora2_genera)
-    pipeline.pipeline(df, phylum_df, levels, "Phylum", agora2_phyla, agora2_species, agora2_genera)
+    species_phylum_list, genus_phylum_list = pipeline.pipeline(df, phylum_df, levels, "Phylum", agora2_phyla, agora2_species, agora2_genera)
+
     # for taxa in ['phylum', 'genus', 'species']:
     #     for i, name in enumerate(["agora_checked", "total_with_species", "agora2"]):
     #         present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_present.csv')
     #     for i, name in enumerate(["agora_checked", "agora2", "relative"]):
     #         absent_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_absent.csv')
+
+    # Get stats on the species
+
     
+
+    # Get stats on the genus
+
     return present_genus_df, present_species_df
 
 if __name__ == "__main__":
