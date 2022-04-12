@@ -1,11 +1,11 @@
 from lib import preprocessing, agora_checking, taxonomic_distribution, pipeline, species_genus_association, \
-    general_stats
+    general_stats, Stratification, normalisation
 
 import os
 import json
 
 
-def main(*args, relative=False, **kwargs):
+def main(*args, relative=False, pathstrat=None,**kwargs):
     with open('mars.json', 'r') as fp:
         agora2 = json.load(fp)
     agora2_phyla = set(agora2["Phylum"])
@@ -98,24 +98,10 @@ def main(*args, relative=False, **kwargs):
     # Normalise
     # TODO: might want to put this in a separate module?
 
-    total_species_reads = present_species_df.sum()
-    total_genus_reads = present_genus_df.sum()
+    agora_species_normed, agora_species_normed_cut, agora_species_renormed = \
+        normalisation.normalise_and_cut(present_species_df)
 
-    agora_species_normed = present_species_df.loc[:].div(total_species_reads)
-    agora_genus_normed = present_genus_df.loc[:].div(total_genus_reads)
-
-    agora_species_normed_cut = agora_species_normed.copy()
-    agora_genus_normed_cut = agora_genus_normed.copy()
-    # Save these dfs
-    agora_species_normed_cut[agora_species_normed_cut < 1e-5] = 0
-    agora_genus_normed_cut[agora_genus_normed_cut < 1e-5] = 0
-    # Renormalize
-
-    total_species_rel_abund = agora_species_normed_cut.sum()
-    total_genus_rel_abund = agora_genus_normed_cut.sum()
-
-    agora_species_renormed = agora_species_normed_cut.loc[:].div(total_species_rel_abund)
-    agora_genus_renormed = agora_genus_normed_cut.loc[:].div(total_genus_rel_abund)
+    agora_genus_normed, agora_genus_normed_cut, agora_genus_renormed = normalisation.normalise_and_cut(present_genus_df)
 
     species_df_list = [present_species_df, species_df, agora_species_normed_cut, agora_species_renormed]
     genus_df_list = [present_genus_df, genus_df, agora_genus_normed_cut, agora_genus_renormed]
@@ -124,10 +110,15 @@ def main(*args, relative=False, **kwargs):
     species_stats = general_stats.general_stats(df, species_phylum_list, species_df_list)
     genus_stats = general_stats.general_stats(df, genus_phylum_list, genus_df_list)
 
+    if pathstrat is not None:
+        species_strat = Stratification.split_df(species_stats, pathstrat)
+        genus_strat = Stratification.split_df(genus_stats, pathstrat)
+
     return present_genus_df, present_species_df
 
 
 if __name__ == "__main__":
 
     genus, species = main(taxonomy_table=r"C:\Users\MSPG\Desktop\Mars_test\taxonomyWoL.tsv",
-                          feature_table=r"C:\Users\MSPG\Desktop\Mars_test\feature-tableWoLgenome.txt")
+                          feature_table=r"C:\Users\MSPG\Desktop\Mars_test\feature-tableWoLgenome.txt",
+                          pathstrat=r"C:\Users\MSPG\OneDrive - National University of Ireland, Galway (1)\MARS\Test_files\Strat_file.xlsx")
