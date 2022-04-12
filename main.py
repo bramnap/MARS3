@@ -1,5 +1,5 @@
 from lib import preprocessing, agora_checking, taxonomic_distribution, pipeline, species_genus_association, \
-    general_stats
+    general_stats, Stratification
 
 import os
 import json
@@ -124,10 +124,17 @@ def main(*args, relative=False, **kwargs):
     species_stats = general_stats.general_stats(df, species_phylum_list, species_df_list)
     genus_stats = general_stats.general_stats(df, genus_phylum_list, genus_df_list)
 
+    try:
+        species_strat = Stratification.split_df(species_stats, kwargs["pathstrat"])
+        genus_strat = Stratification.split_df(genus_stats, kwargs["pathstrat"])
+    except KeyError:
+        pass
+
     return present_genus_df, present_species_df
 
 
 if __name__ == "__main__":
 
     genus, species = main(taxonomy_table=r"C:\Users\MSPG\Desktop\Mars_test\taxonomyWoL.tsv",
-                          feature_table=r"C:\Users\MSPG\Desktop\Mars_test\feature-tableWoLgenome.txt")
+                          feature_table=r"C:\Users\MSPG\Desktop\Mars_test\feature-tableWoLgenome.txt",
+                          pathstrat=r"C:\Users\MSPG\OneDrive - National University of Ireland, Galway (1)\MARS\Test_files\Strat_file.xlsx")

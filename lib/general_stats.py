@@ -1,5 +1,5 @@
+from . import Stratification
 import pandas as pd
-
 
 def general_stats(initial_df, list_phylum_df, list_species_genus_dfs, extra_phyla=None):
 
@@ -109,14 +109,14 @@ def find_phylum_reads(total, associated, agora, phylum, final_df=None):
 def ratio_calc(final_df):
     # F/B ratio
 
-    bac_tot = final_df.iloc[:, 10]
-    firm_tot = final_df.iloc[:, 15]
+    bac_tot = final_df.iloc[:, 12]
+    firm_tot = final_df.iloc[:, 17]
 
-    bac_ass = final_df.iloc[:, 11]
-    firm_ass = final_df.iloc[:, 16]
+    bac_ass = final_df.iloc[:, 13]
+    firm_ass = final_df.iloc[:, 18]
 
-    bac_agora = final_df.iloc[:, 12]
-    firm_agora = final_df.iloc[:, 17]
+    bac_agora = final_df.iloc[:, 14]
+    firm_agora = final_df.iloc[:, 19]
 
     total_ratio = firm_tot/bac_tot
     total_ratio = total_ratio.rename('Total Fir/Bac ratio')
