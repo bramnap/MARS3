@@ -1,10 +1,6 @@
 import pandas as pd
 import requests
 
-# taxonomy_table=
-# feature_table=
-# combined=
-
 def preprocessing(relative = False, **kwargs):
     
     """ Takes a taxonomy table and feature table or an already combined table to 
@@ -25,6 +21,10 @@ def preprocessing(relative = False, **kwargs):
     ------- 
     kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df
         The function returns an abundance dataframe for every taxonomy level from kingdom to strain. 
+
+    Authors
+    -------
+    Tim Hulshof
     """
     
     alterations = [

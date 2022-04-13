@@ -1,4 +1,4 @@
-from . import Stratification
+from . import stratification
 import pandas as pd
 
 def general_stats(initial_df, list_phylum_df, list_species_genus_dfs, extra_phyla=None):

@@ -1,4 +1,3 @@
-
 def normalise_and_cut(present_df):
 
     total_reads = present_df.sum()

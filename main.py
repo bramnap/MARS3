@@ -1,13 +1,29 @@
-from lib import preprocessing, agora_checking, taxonomic_distribution, pipeline, species_genus_association, \
-    general_stats, Stratification, normalisation
-
+from lib import preprocessing, agora_checking, pipeline, general_stats, stratification, normalisation
 import os
 import json
 
+def main(*args, relative=False, path_to_stratification_file=None, **kwargs):
 
-def main(*args, relative=False, pathstrat=None,**kwargs):
+    """ 
+
+    Parameters 
+    ---------- 
+
+
+    Returns 
+    ------- 
+    None 
+
+    Authors
+    -------
+    Tim Hulshof
+    Bram Nap
+    """
+
+    # Read in Agora2 unique taxa on all taxonomic levels
     with open('mars.json', 'r') as fp:
         agora2 = json.load(fp)
+
     agora2_phyla = set(agora2["Phylum"])
     agora2_classes = set(agora2["Class"])
     agora2_orders = set(agora2["Order"])
@@ -15,48 +31,17 @@ def main(*args, relative=False, pathstrat=None,**kwargs):
     agora2_genera = set(agora2["Genus"])
     agora2_species = set(agora2["Species"])
     agora2_strains = set(agora2["Strain"])
-    
-    agora2_level_sets = [agora2_phyla, agora2_classes, agora2_orders, agora2_families, agora2_genera, agora2_species,
-                         agora2_strains]
-    
-    df_levels = list(preprocessing.preprocessing(**kwargs, relative=relative))
+
     # Total reads
-    df, kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df = \
-        df_levels[0], df_levels[1], df_levels[2], df_levels[3], df_levels[4], df_levels[5], df_levels[6], \
-        df_levels[7], df_levels[8]
+    df, kingdom_df, phylum_df, class_df, order_df, family_df, genus_df, species_df, strain_df = preprocessing.preprocessing(**kwargs, relative=relative)
 
-    # phylum_df total phylum reads
-    
-    # associated_phylum_species, associated_phylum_genus = species_genus_association.association(df, levels, "Phylum")
-    # absent_phylum, present_phylum = agora2_checking(phylum_df, agora2_phyla) 
-    # associated_phylum_with_species in agora
+    # Retrieve present species and genus df for later use
+    _, present_genus_df = agora_checking.agora_checking(genus_df, agora2_genera)
+    _, present_species_df = agora_checking.agora_checking(species_df, agora2_species)
 
-    present_df_levels = []
-    absent_df_levels = []
-    for df_level, agora2_level_set in zip(df_levels[2:], agora2_level_sets):
-        df_absent, df_present = agora_checking.agora_checking(df_level, agora2_level_set)
-        present_df_levels.append(df_present)
-        absent_df_levels.append(df_absent)
-
-        # TODO: Delete?
-#     present_phylum_df, present_class_df, present_order_df, present_family_df, present_genus_df, present_species_df, present_strain_df = present_df_levels[0], present_df_levels[1], present_df_levels[2], present_df_levels[3], present_df_levels[4], present_df_levels[5], present_df_levels[6]
-#     absent_phylum_df, absent_class_df, absent_order_df, absent_family_df, absent_genus_df, absent_species_df, absent_strain_df = absent_df_levels[0], absent_df_levels[1], absent_df_levels[2], absent_df_levels[3], absent_df_levels[4], absent_df_levels[5], absent_df_levels[6]
-    present_genus_df, present_species_df = present_df_levels[4], present_df_levels[5]
-
-    # TODO: Delete?
-    # #construct coverage files here
-    # levels_omitting_kingdom = levels[1:].copy()
-    # total_reads = df.drop(columns=levels).sum()
-    
-    # present_dataframes = {}
-    # absent_dataframes = {}
-    # for i, (absent_df, present_df, level, agora2_level_set) in enumerate(zip(absent_df_levels, present_df_levels, levels_omitting_kingdom, agora2_level_sets)):
-    #     df_present_species, df_present_agora_species, df_absent_species, absent_relative = taxonomic_distribution.taxonomic_distribution(total_reads, absent_df, present_df, agora2_level_set, df, level, levels_omitting_kingdom)
-    #     present_dataframes[level.lower()] = [present_df_levels[i], df_present_species, df_present_agora_species]
-    #     absent_dataframes[level.lower()] = [absent_df_levels[i], df_absent_species, absent_relative]
-    
     levels = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Strain']
 
+    # TODO: expand saving capabilities
     if not os.path.isdir("MARS_output"):
         os.mkdir("MARS_output")
 
@@ -65,42 +50,26 @@ def main(*args, relative=False, pathstrat=None,**kwargs):
         try:
             arg = arg.lower()
             if arg == "class":
-                # save
-                # print(present_dataframes[arg])
-                pass
+                _, _ = pipeline.pipeline(df, class_df, levels, "Class", agora2_classes, agora2_species, agora2_genera)
             elif arg == "order":
-                # save
-                pass
+                _, _ = pipeline.pipeline(df, order_df, levels, "Order", agora2_orders, agora2_species, agora2_genera)
             elif arg == "family":
-                # save
-                pass
+                _, _ = pipeline.pipeline(df, family_df, levels, "Family", agora2_families, agora2_species, agora2_genera)
             elif arg == "strain":
-                # save
+                print("Strain pipeline still under construction...")
                 pass
             else:
                 print(f"\"{arg}\" did not match any of the optional taxonomic levels. Please check spelling")
         except SyntaxError:
             print("A syntax error was found in your arguments. Please check that you inputted a string.")
             pass
+    
+    # Phylum data for general stats
+    species_phylum_list, genus_phylum_list = pipeline.pipeline(df, phylum_df, levels, "Phylum", agora2_phyla, agora2_species, agora2_genera)
 
-    # TODO: Delete?
-    # total_df, associated_species, associated_genus, absent, present, associated_species_agora2, associated_genus_agora2 = pipeline.pipeline(df, total_df, levels, level, agora2_level_set, agora2_species, agora2_genera)
-    species_phylum_list, genus_phylum_list = pipeline.pipeline(df, phylum_df, levels, "Phylum", agora2_phyla,
-                                                               agora2_species, agora2_genera)
+    # agora_sepecies_normed - just saved?
 
-    # TODO: Delete?
-    # for taxa in ['phylum', 'genus', 'species']:
-    #     for i, name in enumerate(["agora_checked", "total_with_species", "agora2"]):
-    #         present_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_present.csv')
-    #     for i, name in enumerate(["agora_checked", "agora2", "relative"]):
-    #         absent_dataframes[taxa][i].to_csv(f'MARS_output/{name}_{taxa}_absent.csv')
-
-    # Normalise
-    # TODO: might want to put this in a separate module?
-
-    agora_species_normed, agora_species_normed_cut, agora_species_renormed = \
-        normalisation.normalise_and_cut(present_species_df)
-
+    agora_species_normed, agora_species_normed_cut, agora_species_renormed = normalisation.normalise_and_cut(present_species_df)
     agora_genus_normed, agora_genus_normed_cut, agora_genus_renormed = normalisation.normalise_and_cut(present_genus_df)
 
     species_df_list = [present_species_df, species_df, agora_species_normed_cut, agora_species_renormed]
@@ -110,15 +79,15 @@ def main(*args, relative=False, pathstrat=None,**kwargs):
     species_stats = general_stats.general_stats(df, species_phylum_list, species_df_list)
     genus_stats = general_stats.general_stats(df, genus_phylum_list, genus_df_list)
 
-    if pathstrat is not None:
-        species_strat = Stratification.split_df(species_stats, pathstrat)
-        genus_strat = Stratification.split_df(genus_stats, pathstrat)
+    if path_to_stratification_file is not None:
+        species_strat = stratification.split_df(species_stats, path_to_stratification_file)
+        genus_strat = stratification.split_df(genus_stats, path_to_stratification_file)
 
-    return present_genus_df, present_species_df
+    # return present_genus_df, present_species_df
 
 
 if __name__ == "__main__":
 
     genus, species = main(taxonomy_table=r"C:\Users\MSPG\Desktop\Mars_test\taxonomyWoL.tsv",
                           feature_table=r"C:\Users\MSPG\Desktop\Mars_test\feature-tableWoLgenome.txt",
-                          pathstrat=r"C:\Users\MSPG\OneDrive - National University of Ireland, Galway (1)\MARS\Test_files\Strat_file.xlsx")
+                          path_to_stratification_file=r"C:\Users\MSPG\OneDrive - National University of Ireland, Galway (1)\MARS\Test_files\Strat_file.xlsx")
