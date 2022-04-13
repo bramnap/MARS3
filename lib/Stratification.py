@@ -83,4 +83,4 @@ def split_df(df, stratpath):
     stat_df = stat_df[cols]
     print(stat_df)
 
-    return stat_df
+    # Save file here 

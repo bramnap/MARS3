@@ -20,6 +20,8 @@ def main(*args, relative=False, path_to_stratification_file=None, **kwargs):
     Bram Nap
     """
 
+    # TODO: sort args into taxonomic levels and phyla
+
     # Read in Agora2 unique taxa on all taxonomic levels
     with open('mars.json', 'r') as fp:
         agora2 = json.load(fp)
@@ -69,19 +71,19 @@ def main(*args, relative=False, path_to_stratification_file=None, **kwargs):
 
     # agora_sepecies_normed - just saved?
 
-    agora_species_normed, agora_species_normed_cut, agora_species_renormed = normalisation.normalise_and_cut(present_species_df)
-    agora_genus_normed, agora_genus_normed_cut, agora_genus_renormed = normalisation.normalise_and_cut(present_genus_df)
+    agora_species_normed_cut = normalisation.normalise_and_cut(present_species_df)
+    agora_genus_normed_cut = normalisation.normalise_and_cut(present_genus_df)
 
-    species_df_list = [present_species_df, species_df, agora_species_normed_cut, agora_species_renormed]
-    genus_df_list = [present_genus_df, genus_df, agora_genus_normed_cut, agora_genus_renormed]
+    species_df_list = [present_species_df, species_df, agora_species_normed_cut]
+    genus_df_list = [present_genus_df, genus_df, agora_genus_normed_cut]
 
     # Get stats
     species_stats = general_stats.general_stats(df, species_phylum_list, species_df_list)
     genus_stats = general_stats.general_stats(df, genus_phylum_list, genus_df_list)
 
     if path_to_stratification_file is not None:
-        species_strat = stratification.split_df(species_stats, path_to_stratification_file)
-        genus_strat = stratification.split_df(genus_stats, path_to_stratification_file)
+        stratification.split_df(species_stats, path_to_stratification_file)
+        stratification.split_df(genus_stats, path_to_stratification_file)
 
     # return present_genus_df, present_species_df
 

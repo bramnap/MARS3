@@ -10,4 +10,9 @@ def normalise_and_cut(present_df):
     total_rel_abund = agora_normed_cut.sum()
     agora_renormed = agora_normed_cut.loc[:].div(total_rel_abund)
 
-    return agora_normed, agora_normed_cut, agora_renormed
+    #TODO: saving files 
+    # save agora normed 
+    # agora normed cut -not mgpipe ready
+    # save agora renormed 
+
+    return agora_normed_cut

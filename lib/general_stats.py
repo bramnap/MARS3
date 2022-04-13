@@ -1,10 +1,9 @@
-from . import stratification
 import pandas as pd
 
 def general_stats(initial_df, list_phylum_df, list_species_genus_dfs, extra_phyla=None):
 
     total_phylum, associated_phylum, associated_agora_phylum = list_phylum_df
-    reads_afteragora_df, reads_beforeagora_df, norm_cut_df, renorm_df = list_species_genus_dfs
+    reads_afteragora_df, reads_beforeagora_df, norm_cut_df = list_species_genus_dfs
 
     sum_initial_df = sum_rename_sort(initial_df.iloc[:, 8:], 'Total Reads')
 
@@ -80,6 +79,7 @@ def sum_rename_sort(df, name):
 
 
 def find_phylum_reads(total, associated, agora, phylum, final_df=None):
+    # TODO: .lower() -> capitalisation
     try:
         total_phyl = total.loc[[phylum]]
         phyl_associated = associated.loc[[phylum]]
@@ -108,6 +108,8 @@ def find_phylum_reads(total, associated, agora, phylum, final_df=None):
 
 def ratio_calc(final_df):
     # F/B ratio
+
+    # TODO: change to explicit names
 
     bac_tot = final_df.iloc[:, 12]
     firm_tot = final_df.iloc[:, 17]
