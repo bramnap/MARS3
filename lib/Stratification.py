@@ -75,6 +75,8 @@ def split_df(df, stratpath):
     else:
         pass
 
+    # Bonourna
+
     p_series = pd.Series(p_val_list, name='P_values', index=stat_df.index)
     stat_df = stat_df.join(p_series)
 
